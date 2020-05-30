@@ -4,9 +4,11 @@
       <template v-slot:title>恭喜</template>
       <template>新增课程成功！</template>
     </message>
-    <img alt="Vue logo" src="./assets/logo.png" />
+    <!-- <img alt="Vue logo" src="@/assets/logo.png" /> -->
+    <img alt="Vue logo" :src="`${publicPath}assets/logo.png`" />
+    <!-- <img alt="Vue logo" src="@/assets/logo.png" /> -->
     <p>
-      <input type="text" v-model="price" />
+      <input class="inp" type="text" v-model="price" />
       <button @click="batchUpdate">批量更新价格</button>
     </p>
     <CourseAdd v-model="course.name" @add-course="addCourse" />
@@ -36,7 +38,8 @@ export default {
       price: 100,
       course: {
         name: ""
-      }
+      },
+      publicPath: process.env.BASE_URL
     };
   },
   async created() {
@@ -91,7 +94,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -99,5 +102,9 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.inp {
+  color: $color;
 }
 </style>
