@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 // import Admin from '../views/Admin.vue'
+import store from '../store'
 
 Vue.use(VueRouter)
 
@@ -45,7 +46,8 @@ const router = new VueRouter({
 // })
 // 全局守卫修改为：要求用户必须登录，否则只能去登录页
 router.beforeEach((to, from, next) => {
-  if (window.isLogin) {
+  // if (window.isLogin) {
+  if (store.state.isLogin) {
     if (to.path === '/login') {
       next('/') // 如果已经是登录页，就去首页
     } else {
