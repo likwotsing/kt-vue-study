@@ -1,5 +1,5 @@
 export default {
-  namespaced: true, // 避免命名冲突
+  namespaced: true,
   state: {
     isLogin: false
   },

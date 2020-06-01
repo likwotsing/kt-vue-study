@@ -99,7 +99,6 @@ export default {
       if (window.isLogin) {
         next()
       } else {
-        console.log('to', to)
         next('/login?redirect=' + to.fullPath)
       }
   }

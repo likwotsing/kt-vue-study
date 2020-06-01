@@ -2,8 +2,8 @@
   <div>
     <!-- <button @click="login" v-if="!isLogin">登录</button> -->
     <!-- <button @click="login" v-if="!$store.state.isLogin">登录</button> -->
-    <button @click="login" v-if="!$store.state.isLogin">登录</button>
-    <button v-else @click="logout">注销</button>
+    <button @click="login" v-if="!isLogin">登录</button>
+    <button @click="logout" v-else>注销</button>
   </div>
 </template>
 
@@ -12,8 +12,8 @@
     methods: {
       login() {
         // window.isLogin = true
-        // this.$store.commit('login')
-        this.$store.dispatch('login', 'admin').then(() => {
+        // this.$store.commit('user/login')
+        this.$store.dispatch('user/login', 'admin').then(() => {
           // 动态添加之前不存在的路由
           this.$router.addRoutes([
             {
@@ -53,12 +53,14 @@
       },
       logout() {
         // window.isLogin = false
-        this.$store.commit('logout')
+        this.$store.commit('user/logout')
+        this.$router.push('/')
       }
     },
     computed: {
       isLogin() {
-        return window.isLogin
+        // return window.isLogin
+        return this.$store.state.user.isLogin
       }
     },
   }
