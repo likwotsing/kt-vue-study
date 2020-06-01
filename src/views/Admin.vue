@@ -13,6 +13,9 @@
     </p>
     <CourseAdd v-model="course.name" @add-course="addCourse" />
     <CourseList :courses="courses" />
+
+    <!-- 嵌套路由出口 -->
+    <router-view></router-view>
   </div>
 </template>
 
@@ -23,6 +26,7 @@ import CourseAdd from "@/components/CourseAdd.vue";
 import Message from "@/components/Message.vue";
 
 export default {
+  name: 'Admin',
   components: {
     CourseList,
     CourseAdd,
@@ -89,6 +93,15 @@ export default {
         this.$set(c, "price", this.price); // 生效
       });
     }
+  },
+  beforeRouteEnter(to, from, next) {
+    // 组件内守卫
+      if (window.isLogin) {
+        next()
+      } else {
+        console.log('to', to)
+        next('/login?redirect=' + to.fullPath)
+      }
   }
 }
 </script>

@@ -18,8 +18,13 @@
           v-for="c in courses"
           :key="c.name"
           :style="{backgroundColor: (selectedCourse === c) ? '#ddd' : 'transparent'}"
-          @click="selectedCourse = c"
-        >{{ c.name }} - ￥ {{ c.price | currentcy('RMB') }}</li>
+          @click="onClick(c)"
+        >
+          <!-- <router-link :to="`/course/${c.name}`"> -->
+          <!-- <router-link :to="`/admin/course/${c.name}`"> -->
+            {{ c.name }} - ￥ {{ c.price | currentcy('RMB') }}
+          <!-- </router-link> -->
+        </li>
       </transition-group>
     </ul>
   </div>
@@ -46,7 +51,20 @@ export default {
     currentcy(value, symbol = "￥") {
       return symbol + value;
     }
-  }
+  },
+  methods: {
+    onClick(c) {
+      this.selectedCourse = c
+      // this.$router.push(`/admin/course/${c.name}`)
+      // 命名的路由
+      this.$router.push({
+        name: 'Detail',
+        params: {
+          name: c.name
+        }
+      })
+    }
+  },
 };
 </script>
 

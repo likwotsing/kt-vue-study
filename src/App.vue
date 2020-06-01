@@ -6,7 +6,10 @@
       <router-link to="/admin">管理</router-link>
     </div>
     <!-- 路由出口 -->
-    <router-view></router-view>
+    <!-- include里是组件名称，不是路由名称 -->
+    <keep-alive include="Admin">
+      <router-view></router-view>
+    </keep-alive>
   </div>
 </template>
 
