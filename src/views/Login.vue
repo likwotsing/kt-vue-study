@@ -8,12 +8,14 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
   export default {
     methods: {
       login() {
         // window.isLogin = true
         // this.$store.commit('user/login')
-        this.$store.dispatch('user/login', 'admin').then(() => {
+        // this.$store.dispatch('user/login', 'admin').then(() => {
+        this['user/login']('admin').then(() => {
           // 动态添加之前不存在的路由
           this.$router.addRoutes([
             {
@@ -53,15 +55,19 @@
       },
       logout() {
         // window.isLogin = false
-        this.$store.commit('user/logout')
+        // this.$store.commit('user/logout')
+        this['user/logout']()
         this.$router.push('/')
-      }
+      },
+      ...mapActions(['user/login', 'user/logout'])
     },
     computed: {
-      isLogin() {
-        // return window.isLogin
-        return this.$store.state.user.isLogin
-      }
+      // isLogin() {
+      //   // return window.isLogin
+      //   return this.$store.state.user.isLogin
+      // },
+      // 使用对象展开运算符将此对象混入到外部对象中
+      ...mapState('user', ['isLogin'])
     },
   }
 </script>

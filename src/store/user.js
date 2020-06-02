@@ -1,14 +1,26 @@
 export default {
   namespaced: true,
   state: {
-    isLogin: false
+    isLogin: false,
+    username: ''
   },
   mutations: {
-    login(state) {
+    login(state, username) {
       state.isLogin = true
+      state.username = username
     },
     logout(state) {
       state.isLogin = false
+      state.username = ''
+      return 'haha'
+    },
+    setUsername(state, username) {
+      state.username = username
+    }
+  },
+  getters: {
+    welcome: state => {
+      return state.username + ', 欢迎回来'
     }
   },
   actions: {
@@ -17,7 +29,7 @@ export default {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           if (username === 'admin') {
-            commit('login')
+            commit('login', username)
             resolve()
           } else {
             reject()

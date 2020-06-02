@@ -5,6 +5,10 @@
       <router-link to="/">首页</router-link>
       <router-link to="/admin">管理</router-link>
     </div>
+    <p v-if="isLogin">
+      {{ welcome }}
+      <button @click="logout">注销</button>
+    </p>
     <!-- 路由出口 -->
     <!-- include里是组件名称，不是路由名称 -->
     <keep-alive include="Admin">
@@ -14,9 +18,20 @@
 </template>
 
 <script>
-
+import { mapState, mapGetters, mapMutations } from 'vuex'
 export default {
-  name: "App"
+  name: "App",
+  computed: {
+    ...mapState('user', ['isLogin']),
+    ...mapGetters('user', ['welcome'])
+  },
+  methods: {
+    logout() {
+      this.$router.push('/')
+      this['user/logout']()
+    },
+    ...mapMutations(['user/logout'])
+  }
 };
 </script>
 
