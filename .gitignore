@@ -2,6 +2,10 @@
 node_modules
 /dist
 
+/vuecli/node_modules/
+# 临时测试文件
+/test
+
 # local env files
 .env.local
 .env.*.local
