@@ -96,11 +96,15 @@ export default {
   },
   beforeRouteEnter(to, from, next) {
     // 组件内守卫
-      if (window.isLogin) {
+    // 不！能！获取组件实例，因为组件还没创建，但是可以通过next传递一个参数来访问组件实例
+    // if (window.isLogin) {
+    next(vm => {
+      if (vm.$store.state.user.isLogin) {
         next()
       } else {
         next('/login?redirect=' + to.fullPath)
       }
+    })
   }
 }
 </script>
