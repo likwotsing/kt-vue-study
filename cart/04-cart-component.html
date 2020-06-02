@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>购物车案例</title>
+  <style>
+    .active {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- 插值文本 -->
+    <h2>{{ title }}</h2>
+
+    <!-- 特性、属性值绑定使用v-bind指令 -->
+    <h2 v-bind:title="title"></h2>
+
+    <!-- 自定义课程添加组件 -->
+    <course-add @add-course="addCourse"></course-add>
+
+    <!-- 自定义课程列表组件 -->
+    <course-list :courses="courses"></course-list>
+
+    <p>
+      <!-- 绑定表达式 -->
+      <!-- 课程总数：{{ courses.length + '门'}} -->
+      <!-- 计算属性 -->
+      <!-- 课程总数：{{ total }} -->
+      <!-- 监听器 -->
+      课程总数： {{ totalCount }}
+    </p>
+  </div>
+  <script src="../vue.js"></script>
+  <script>
+    // 注册course-list组件
+    Vue.component('course-list', {
+      props: {
+        // 新增课程时也要方位courses，因此作为属性传递
+        courses: {
+          type: Array,
+          default: []
+        }
+      },
+      data() {
+        return {
+          // 改状态属于course-list内部状态，因此作为数据
+          selectedCourse: '', // 保存选中项
+        }
+      },
+      template: `
+        <div>
+          <!-- 条件渲染 -->
+          <p v-if="courses.length === 0">没有任何课程信息</p>
+
+          <!-- 列表渲染 -->
+          <ul>
+            <!-- class绑定 -->
+            <!-- <li
+              v-for="c in courses"
+              :class="{active: (selectedCourse === c)}"
+              @click="selectedCourse = c"
+            >{{c}}</li> -->
+
+            <!-- style绑定 -->
+              <li
+                v-for="c in courses"
+                :style="{backgroundColor: (selectedCourse === c) ? '#ddd' : 'transparent'}"
+                @click="selectedCourse = c"
+              >{{ c }}</li>
+          </ul>
+        </div>
+      `
+    })
+
+    // 注册course-add组件
+    Vue.component('course-add', {
+      props: {
+        courses: {
+          type: Array,
+          default: []
+        }
+      },
+      data() {
+        return {
+          course: ''  // 将course从父组件提取到course-add维护
+        }
+      },
+      methods: {
+        addCourse() {
+          // 发送自定义事件通知父组件
+          // 注意事件名称定义时不要有大写字母出现
+          this.$emit('add-course', this.course)
+          this.course = ''
+        }
+      },
+      template: `
+        <div>
+          <!-- 表单输入绑定 -->
+          <input type="text" v-model="course" v-on:keydown.enter="addCourse">
+
+          <!-- 事件处理 -->
+          <button v-on:click="addCourse">新增课程</button>  
+        </div>
+      `
+    })
+
+    const app = new Vue({
+      el: '#app',
+      data: {
+        title: '购物车案例',
+        // courses: ['web全栈', 'web高级'],
+        courses: [],
+        totalCount: 0
+      },
+      computed: {
+        total() {
+          return this.courses.length + '门'
+        }
+      },
+      methods: {
+        // 回调函数接收事件参数
+        addCourse(val) {
+          this.courses.push(val)
+        }
+      },
+      watch: {
+        // 下面这种不能生效，因为初始化时不会触发
+        // courses(newValue, oldValue) {
+        //   this.totalCount = newValue.length + '门'
+        // }
+        courses: {
+          immediate: true,
+          // deep: true,
+          handler(newValue, oldValue) {
+            this.totalCount = newValue.length + '门'
+          }
+        }
+      },
+      // created钩子中调用接口
+      async created() {
+        const courses = await getCourses()
+        this.courses = courses
+      }
+    })
+    console.log(app.$options.render)
+
+    function getCourses() {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(['web全栈', 'web高级'])
+        }, 2000)
+      })
+    }
+  </script>
+</body>
+</html>

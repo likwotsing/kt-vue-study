@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>购物车案例</title>
+  <style>
+    .active {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- 插值文本 -->
+    <h2>{{ title }}</h2>
+
+    <!-- 特性、属性值绑定使用v-bind指令 -->
+    <h2 v-bind:title="title"></h2>
+
+    <!-- 表单输入绑定 -->
+    <input type="text" v-model="course" v-on:keydown.enter="addCourse">
+
+    <!-- 事件处理 -->
+    <button v-on:click="addCourse">新增课程</button>
+
+    <!-- 条件渲染 -->
+    <p v-if="courses.length === 0">没有任何课程信息</p>
+
+    <!-- 列表渲染 -->
+    <ul>
+      <!-- class绑定 -->
+      <!-- <li
+        v-for="c in courses"
+        :class="{active: (selectedCourse === c)}"
+        @click="selectedCourse = c"
+      >{{c}}</li> -->
+
+      <!-- style绑定 -->
+        <li
+          v-for="c in courses"
+          :style="{backgroundColor: (selectedCourse === c) ? '#ddd' : 'transparent'}"
+          @click="selectedCourse = c"
+        >{{ c }}</li>
+    </ul>
+
+    <p>
+      <!-- 绑定表达式 -->
+      <!-- 课程总数：{{ courses.length + '门'}} -->
+      <!-- 计算属性 -->
+      <!-- 课程总数：{{ total }} -->
+      <!-- 监听器 -->
+      课程总数： {{ totalCount }}
+    </p>
+  </div>
+  <script src="../vue.js"></script>
+  <script>
+    const app = new Vue({
+      el: '#app',
+      data: {
+        title: '购物车案例',
+        course: '',
+        // courses: ['web全栈', 'web高级'],
+        courses: [],
+        selectedCourse: '', // 保存选中项
+        totalCount: 0
+      },
+      methods: {
+        addCourse() {
+          this.courses.push(this.course)
+          this.course = ''
+        }
+      },
+      computed: {
+        total() {
+          return this.courses.length + '门'
+        }
+      },
+      watch: {
+        // 下面这种不能生效，因为初始化时不会触发
+        // courses(newValue, oldValue) {
+        //   this.totalCount = newValue.length + '门'
+        // }
+        courses: {
+          immediate: true,
+          // deep: true,
+          handler(newValue, oldValue) {
+            this.totalCount = newValue.length + '门'
+          }
+        }
+      },
+      // created钩子中调用接口
+      async created() {
+        const courses = await getCourses()
+        this.courses = courses
+      }
+    })
+    console.log(app.$options.render)
+
+    function getCourses() {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(['web全栈', 'web高级'])
+        }, 2000)
+      })
+    }
+  </script>
+</body>
+</html>

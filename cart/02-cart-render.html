@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>购物车案例</title>
+  <style>
+    .active {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <!-- 宿主元素 -->
+  <div id="app"></div>
+  <script src="../vue.js"></script>
+  <script>
+    const app = new Vue({
+      el: '#app',
+      data: {
+        title: '购物车案例',
+        course: '',
+        courses: ['web全栈', 'web高级'],
+        selectedCourse: '', // 保存选中项
+        totalCount: 0
+      },
+      methods: {
+        addCourse() {
+          this.courses.push(this.course)
+          this.course = ''
+        }
+      },
+      computed: {
+        total() {
+          return this.courses.length + '门'
+        }
+      },
+      watch: {
+        // 下面这种不能生效，因为初始化时不会触发
+        // courses(newValue, oldValue) {
+        //   this.totalCount = newValue.length + '门'
+        // }
+        courses: {
+          immediate: true,
+          // deep: true,
+          handler(newValue, oldValue) {
+            this.totalCount = newValue.length + '门'
+          }
+        }
+      },
+      // 引入01-cart-template.html生成render函数
+      render() {
+        with(this){
+          return _c('div',{attrs:{"id":"app"}},[_c('h2',[_v(_s(title))]),_v(" "),_c('h2',{attrs:{"title":title}}),_v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(course),expression:"course"}],attrs:{"type":"text"},domProps:{"value":(course)},on:{"keydown":function($event){if(!$event.type.indexOf('key')&&_k($event.keyCode,"enter",13,$event.key,"Enter"))return null;return addCourse($event)},"input":function($event){if($event.target.composing)return;course=$event.target.value}}}),_v(" "),_c('button',{on:{"click":addCourse}},[_v("新增课程")]),_v(" "),(courses.length === 0)?_c('p',[_v("没有任何课程信息")]):_e(),_v(" "),_c('ul',_l((courses),function(c){return _c('li',{style:({backgroundColor: (selectedCourse === c) ? '#ddd' : 'transparent'}),on:{"click":function($event){selectedCourse = c}}},[_v(_s(c))])}),0),_v(" "),_c('p',[_v("\n      课程总数： "+_s(totalCount)+"\n    ")])])
+        }
+      }
+    })
+  </script>
+</body>
+</html>

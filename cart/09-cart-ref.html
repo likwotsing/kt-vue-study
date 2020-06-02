@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>购物车案例</title>
+  <style>
+    .active {
+      background-color: #ddd;
+    }
+    /* 重构样式：提取出.success, 并添加.warning */
+    .message-box {
+      padding: 10px 20px;
+    }
+    .success {
+      background: #4fc08d;
+      border: 1px solid #42b983;
+    }
+    .warning {
+      background: #f66;
+      border: 1px solid #d63200;
+    }
+    .message-box-close {
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <!-- 给之前新增成功消息添加.success -->
+    <!-- 自定义组件引用 -->
+    <message ref="msg" class="success">
+      <template v-slot:title>恭喜</template>
+      <template>新增课程成功！</template>
+    </message>
+    <!-- 新增警告提示窗 -->
+    <!-- <message :show.sync="showWarn" class="warning">
+      <template v-slot:title>
+        <strong>警告</strong>
+      </template>
+      <template v-slot:default>
+        请输入课程名称！
+      </template>
+    </message> -->
+    
+    <!-- 插值文本 -->
+    <h2>{{ title }}</h2>
+
+    <!-- 特性、属性值绑定使用v-bind指令 -->
+    <h2 v-bind:title="title">...</h2>
+
+    <!-- 派发关闭事件 -->
+    <div class="toolbar">
+      <button @click="$bus.$emit('message-close')">清空提示框</button>
+    </div>
+
+    <!-- ref设置输入框焦点 -->
+    <input type="text" ref="inp" >
+
+    <!-- 自定义课程添加组件 -->
+    <!-- 组件使用v-model，需要实现内部input的:value和@input -->
+    <course-add v-model="course.name" @add-course="addCourse"></course-add>
+
+    <!-- 批量更新价格 -->
+    <p>
+      <input type="text" v-model="price">
+      <button @click="batchUpdate">批量更新价格</button>
+    </p>
+
+    <!-- 自定义课程列表组件 -->
+    <course-list :courses="courses"></course-list>
+
+    <p>
+      <!-- 绑定表达式 -->
+      <!-- 课程总数：{{ courses.length + '门'}} -->
+      <!-- 计算属性 -->
+      <!-- 课程总数：{{ total }} -->
+      <!-- 监听器 -->
+      课程总数： {{ totalCount }}
+    </p>
+  </div>
+  <script src="../vue.js"></script>
+  <script>
+    // 添加事件总线
+    Vue.prototype.$bus = new Vue()
+
+    // 注册course-list组件
+    Vue.component('course-list', {
+      props: {
+        // 新增课程时也要方位courses，因此作为属性传递
+        courses: {
+          type: Array,
+          default: []
+        }
+      },
+      data() {
+        return {
+          // 改状态属于course-list内部状态，因此作为数据
+          selectedCourse: '', // 保存选中项
+        }
+      },
+      template: `
+        <div>
+          <!-- 条件渲染 -->
+          <p v-if="courses.length === 0">没有任何课程信息</p>
+
+          <!-- 列表渲染 -->
+          <ul v-else>
+            <!-- class绑定 -->
+            <!-- <li
+              v-for="c in courses"
+              :class="{active: (selectedCourse === c)}"
+              @click="selectedCourse = c"
+            >{{c}}</li> -->
+
+            <!-- style绑定 -->
+              <li
+                v-for="c in courses"
+                :style="{backgroundColor: (selectedCourse === c) ? '#ddd' : 'transparent'}"
+                @click="selectedCourse = c"
+              >
+              {{ c.name }} - ￥ {{ c.price }}
+              </li>
+          </ul>
+        </div>
+      `
+    })
+
+    // 注册course-add组件
+    Vue.component('course-add', {
+      // 修改默认的:value
+      // model: {
+      //   prop: 'myvalue'
+      // },
+      // 接收父组件传递的value，不需要额外维护course
+      props: ['value'],
+      data() {
+        return {
+        }
+      },
+      methods: {
+        addCourse() {
+          // 发送自定义事件通知父组件
+          // 注意事件名称定义时不要有大写字母出现
+          // this.$emit('add-course', this.course)
+          // 派发事件不再需要传递数据
+          this.$emit('add-course')
+          // this.course = ''
+        },
+        onInput(e) {
+          this.$emit('input', e.target.value)
+        }
+      },
+      template: `
+        <div>
+          <!-- 表单输入绑定 -->
+          <!-- 需要实现input的:value和@input -->
+          <!-- <input type="text" v-model="course" v-on:keydown.enter="addCourse"> -->
+          <input :value="value" @input="onInput" @keydown.enter="addCourse">
+
+          <!-- 事件处理 -->
+          <button v-on:click="addCourse">新增课程</button>  
+        </div>
+      `
+    })
+
+    // slot作为占位符
+    // 弹窗组件
+    Vue.component('message', {
+      // props: ['show'],
+      data() {
+        return {
+          show: false
+        }
+      },
+      template: `
+        <div class="message-box" v-if="show">
+          <strong>
+            <slot name="title"></slot>
+          </strong>
+          <slot></slot>
+          <!-- toggle内部修改显示状态 -->
+          <span class="message-box-close" @click="toggle">x</span>
+        </div>
+      `,
+      methods: {
+        // 增加toggle方法维护toggle状态
+        toggle() {
+          this.show = !this.show
+        }
+      },
+      mounted() {
+        // 监听关闭事件
+        // this.$bus.$on('message-close', () => {
+        //   this.$emit('update:show', false)
+        // })
+        // 修改message-close回调为toggle
+        this.$bus.$on('message-close', this.toggle)
+      }
+    })
+
+    const app = new Vue({
+      el: '#app',
+      data: {
+        title: '购物车案例',
+        // courses: ['web全栈', 'web高级'],
+        courses: [],
+        totalCount: 0,
+        course: {
+          name: ''
+        },
+        show: false, //　提示框状态
+        price: 0,
+        showWarn: false // 控制警告信息显示状态
+      },
+      computed: {
+        total() {
+          return this.courses.length + '门'
+        }
+      },
+      methods: {
+        addCourse() {
+          // 增加输入校验
+          if (this.course.name) {
+            this.courses.push(this.course)
+            this.course = {
+              name: ''
+            }
+            // 更新提示框状态
+            // this.show = true
+            // 使用$refs.msg访问自定义组件
+            this.$refs.msg.toggle()
+          } else {
+            // 提示警告信息
+            this.showWarn = true
+          }
+        },
+        batchUpdate() {
+          this.courses.forEach(c => {
+            if (!c) { // 如果输入的课程名称为空
+              return
+            }
+            // c.price = this.price // 不会生效
+            Vue.set(c, 'price', this.price) // 生效
+          })
+        }
+      },
+      watch: {
+        // 下面这种不能生效，因为初始化时不会触发
+        // courses(newValue, oldValue) {
+        //   this.totalCount = newValue.length + '门'
+        // }
+        courses: {
+          immediate: true,
+          // deep: true,
+          handler(newValue, oldValue) {
+            this.totalCount = newValue.length + '门'
+          }
+        }
+      },
+      // created钩子中调用接口
+      async created() {
+        const courses = await getCourses()
+        this.courses = courses
+
+        // 源数据里没有价格，批量添加价格
+        this.batchUpdate()
+      },
+      mounted() {
+        // mounted之后才能访问到inp
+        this.$refs.inp.focus()
+      }
+    })
+    console.log(app.$options.render)
+
+    function getCourses() {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          // 修改返回数据结构为对象
+          // resolve(['web全栈', 'web高级'])
+          resolve([{ name: 'web全栈' }, { name: 'web高级' }])
+        }, 2000)
+      })
+    }
+  </script>
+</body>
+</html>
